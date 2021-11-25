@@ -4,6 +4,22 @@ import kotlin.math.*
 
 fun curveIdentity(): (Double) -> Double = { it }
 
+fun constant(value: Double = 0.5): (Double) -> Double {
+    val valuePremultiplied = value * 255.0
+    return { _ ->
+        valuePremultiplied
+    }
+}
+
+fun killoff(): (Double) -> Double = constant(0.0)
+
+fun tuneLinear(level: Double = 0.5): (Double) -> Double {
+    val offset = (1 - level) * (255 * 2)
+    return { x ->
+        x - offset + 255
+    }
+}
+
 fun sine(offset: Double = 0.5): (Double) -> Double {
     val xoff = offset * PI
     val yoff = 1.0
@@ -44,8 +60,8 @@ fun gd(steepness: Double = 0.025, offset: Double = 0.5): (Double) -> Double {
     }
 }
 
-fun smoothstep(steepness: Int = 1, offset: Double = 0.0): (Double) -> Double {
-    val coefficients: IntArray = if (steepness < 7) smoothstepCoefficients[steepness] else coefficientsFor(steepness)
+fun smoothstep(steepness: Int = 1): (Double) -> Double {
+    val coefficients = smoothstepCoefficients.getOrNull(steepness) ?: coefficientsFor(steepness)
 
     return { x ->
         var res = 0.0
@@ -56,7 +72,7 @@ fun smoothstep(steepness: Int = 1, offset: Double = 0.0): (Double) -> Double {
     }
 }
 
-fun coefficientsFor(n: Int): IntArray {
+private fun coefficientsFor(n: Int): IntArray {
     val res = IntArray(n + 1)
     for (k in res.indices) {
         res[k] = altsgn(k) * ((n + k) choose k) * ((2 * n + 1) choose (n - k))

@@ -1,0 +1,6 @@
+.gradle
+.idea
+build
+
+/test-images
+main.kt

@@ -1,10 +1,14 @@
 package image
 
-class PixelColour(var r: Int = 0, var g: Int = 0, var b: Int = 0, var a: Int = 0) {
+import util.channelToUInt
+import util.div
+import util.times
+
+class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
     companion object {
-        private fun hexCol(hex: String, col: Int): Int {
+        private fun hexCol(hex: String, col: Int): UInt {
             val pos = if (hex.startsWith('#')) 1 else 0 + col * 2
-            return hex.substring(pos, pos + 2).toInt(16)
+            return hex.substring(pos, pos + 2).toUInt(16)
         }
 
         private fun hexHasAlpha(hex: String) = hex.length > 7
@@ -16,38 +20,38 @@ class PixelColour(var r: Int = 0, var g: Int = 0, var b: Int = 0, var a: Int = 0
 
         fun fromBytes(r: Byte, g: Byte, b: Byte, a: Byte = -128): PixelColour {
             return PixelColour(
-                r.toUnsignedInt(),
-                g.toUnsignedInt(),
-                b.toUnsignedInt(),
-                a.toUnsignedInt()
+                r.channelToUInt(),
+                g.channelToUInt(),
+                b.channelToUInt(),
+                a.channelToUInt()
             )
         }
 
-        val BLACK = PixelColour(0, 0, 0, 255)
-        val WHITE = PixelColour(255, 255, 255, 255)
+        val BLACK = PixelColour(0u, 0u, 0u, 255u)
+        val WHITE = PixelColour(255u, 255u, 255u, 255u)
     }
 
-    constructor(original: PixelColour, onChannel: (Int) -> Int, onAlphaChannel: (Int) -> Int) : this(
+    constructor(original: PixelColour, onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt) : this(
         onChannel(original.r),
         onChannel(original.g),
         onChannel(original.b),
         onAlphaChannel(original.a)
     )
 
-    constructor(original: PixelColour, onChannel: (Int) -> Int) : this(original, onChannel, onChannel)
+    constructor(original: PixelColour, onChannel: (UInt) -> UInt) : this(original, onChannel, onChannel)
 
     constructor(hex: String) : this(
         hexR(hex),
         hexG(hex),
         hexB(hex),
-        if (hexHasAlpha(hex)) hexA(hex) else 0
+        if (hexHasAlpha(hex)) hexA(hex) else 0u
     )
 
-    fun transform(onChannel: (Int) -> Int): PixelColour {
+    fun transform(onChannel: (UInt) -> UInt): PixelColour {
         return PixelColour(this, onChannel)
     }
 
-    fun transform(onChannel: (Int) -> Int, onAlphaChannel: (Int) -> Int): PixelColour {
+    fun transform(onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt): PixelColour {
         return PixelColour(this, onChannel, onAlphaChannel)
     }
 
@@ -56,7 +60,7 @@ class PixelColour(var r: Int = 0, var g: Int = 0, var b: Int = 0, var a: Int = 0
     fun byteB() = b.toByte()
     fun byteA() = a.toByte()
 
-    fun grayval() = (r + g + b) / 3
+    fun grayval() = (r + g + b) / 3u
 
     fun grayscale(): PixelColour {
         val gray = grayval()
@@ -64,21 +68,47 @@ class PixelColour(var r: Int = 0, var g: Int = 0, var b: Int = 0, var a: Int = 0
     }
 
     operator fun plus(other: PixelColour): PixelColour {
-        return PixelColour(r + other.r, g + other.g, b + other.b, (a + other.a) / 2)
+        return PixelColour(r + other.r, g + other.g, b + other.b, (a + other.a) / 2u)
     }
 
     operator fun times(other: Number): PixelColour {
         val conv = other.toDouble()
-        return PixelColour((r * conv).toInt(), (g * conv).toInt(), (b * conv).toInt(), a)
+        return PixelColour(
+            (r * conv).toUInt(),
+            (g * conv).toUInt(),
+            (b * conv).toUInt(),
+            a
+        )
     }
 
     operator fun div(other: Number): PixelColour {
         val conv = other.toDouble()
-        return PixelColour((r / conv).toInt(), (g / conv).toInt(), (b / conv).toInt(), a)
+        return PixelColour(
+            (r / conv).toUInt(),
+            (g / conv).toUInt(),
+            (b / conv).toUInt(),
+            a
+        )
+    }
+
+    operator fun component1(): UInt = r
+    operator fun component2(): UInt = g
+    operator fun component3(): UInt = b
+    operator fun component4(): UInt = a
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is PixelColour) return false
+        return other.r == r &&
+                other.g == g &&
+                other.b == b &&
+                other.a == a
+    }
+
+    override fun hashCode(): Int {
+        return (r + g + b + a).toInt()
     }
 }
 
-fun String.toColor() = PixelColour(this)
-
-fun Byte.toUnsignedInt() = this.toInt() and 0xff
+fun String.toColour() = PixelColour(this)
 
