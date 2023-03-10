@@ -155,6 +155,12 @@ fun <T, R> memoized(action: (T) -> (R)): (T) -> (R) {
     }
 }
 
+fun retainOnly(selector: PixelAccess.(PixelColour) -> Boolean): PixelAccess.(PixelColour) -> PixelColour {
+    return {
+        if (selector(it)) it else PixelColour.BLACK
+    }
+}
+
 private fun UInt.coercePixel() = coerce(0u, 255u)
 
 private fun selectorOf(twoDimensionalSelector: (r: Int, x: Int, y: Int) -> Boolean): (r: Int) -> List<Pair<Int, Int>> {

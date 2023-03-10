@@ -1,9 +1,10 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    java
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.8.10"
 }
 
-group = "org.example"
+group = "com.rtarita"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -13,11 +14,6 @@ repositories {
 dependencies {
 }
 
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
 }

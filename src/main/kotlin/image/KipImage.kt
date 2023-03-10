@@ -1,5 +1,6 @@
 package image
 
+import util.OverflowHandling
 import java.awt.image.BufferedImage
 import java.nio.file.Path
 import javax.imageio.ImageIO
@@ -93,5 +94,17 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         } else {
             KipImage(keepSteps, mutableListOf(top()))
         }
+    }
+
+    operator fun plusAssign(other: KipImage) {
+        plus(other)
+    }
+
+    fun plus(other: KipImage, overflowHandling: OverflowHandling = OverflowHandling.CLAMP) {
+        push(top().add(other.top(), overflowHandling))
+    }
+
+    operator fun minusAssign(other: KipImage) {
+        push(top().subtract(other.top()))
     }
 }

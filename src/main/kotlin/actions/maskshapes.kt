@@ -35,6 +35,12 @@ fun star(): (r: Int, x: Int, y: Int) -> Boolean {
     }
 }
 
+fun cross(): (r: Int, x: Int, y: Int) -> Boolean {
+    return { _, x, y ->
+        x == 0 || y == 0
+    }
+}
+
 fun ellipsisHorizontal(inset: Double): (r: Int, x: Int, y: Int) -> Boolean {
     val i2inv = (1 - inset) * (1 - inset)
     return { r, x, y ->

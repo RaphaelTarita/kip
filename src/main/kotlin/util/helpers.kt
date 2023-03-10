@@ -5,6 +5,17 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+fun max(r: UInt, g: UInt, b: UInt, a: UInt = 0u): UInt {
+    return max(max(max(r, g), b), a)
+}
+
+fun min(r: UInt, g: UInt, b: UInt): UInt {
+    return min(min(r, g), b)
+}
+
+fun min(r: UInt, g: UInt, b: UInt, a: UInt): UInt {
+    return min(min(min(r, g), b), a)
+}
 
 fun Int.coerce(lower: Int, upper: Int): Int {
     return min(max(this, lower), upper)

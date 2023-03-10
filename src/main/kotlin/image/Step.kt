@@ -1,5 +1,6 @@
 package image
 
+import util.OverflowHandling
 import util.coerce
 import java.awt.Point
 import java.awt.image.BufferedImage
@@ -84,7 +85,40 @@ class Step(
 
     fun pixelData() = data
 
-    infix fun minus(other: Step): Step {
+    private fun addInternal(other: Step, calculate: (Int, Int) -> Int): ByteArray {
+        val result = ByteArray(data.size)
+        for (i in data.indices) {
+            result[i] = calculate(data[i].toUByte().toInt(), other.data[i].toUByte().toInt()).toByte()
+        }
+        return result
+    }
+
+    private fun maxAdded(other: Step): Double {
+        var max = 0
+        for (i in data.indices) {
+            val added = data[i].toUByte().toInt() + other.data[i].toUByte().toInt()
+            if (added > max) {
+                max = added
+            }
+        }
+        return max.toDouble()
+    }
+
+    fun add(other: Step, overflowHandling: OverflowHandling = OverflowHandling.CLAMP): Step {
+        require(data.size == other.data.size)
+        val result = when (overflowHandling) {
+            OverflowHandling.NONE -> addInternal(other) { a, b -> a + b }
+            OverflowHandling.CLAMP -> addInternal(other) { a, b -> (a + b).coerce(0, 255) }
+            OverflowHandling.AVERAGE -> addInternal(other) { a, b -> (a + b) / 2 }
+            OverflowHandling.NORMALIZE -> {
+                val factor = 255.0 / maxAdded(other)
+                addInternal(other) { a, b -> ((a + b) * factor).toInt() }
+            }
+        }
+        return Step(width, height, hasAlpha, result)
+    }
+
+    fun subtract(other: Step): Step {
         require(data.size == other.data.size)
         val result = ByteArray(data.size)
         for (i in data.indices) {
