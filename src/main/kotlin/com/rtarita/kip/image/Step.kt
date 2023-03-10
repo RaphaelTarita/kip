@@ -1,7 +1,7 @@
-package image
+package com.rtarita.kip.image
 
-import util.OverflowHandling
-import util.coerce
+import com.rtarita.kip.util.OverflowHandling
+import com.rtarita.kip.util.coerce
 import java.awt.Point
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte

@@ -1,4 +1,4 @@
-package image
+package com.rtarita.kip.image
 
 interface PixelAccess {
     fun read(x: Int, y: Int): PixelColour

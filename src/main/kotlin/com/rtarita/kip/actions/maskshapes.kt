@@ -1,6 +1,6 @@
-package actions
+package com.rtarita.kip.actions
 
-import util.cbrt
+import com.rtarita.kip.util.cbrt
 import kotlin.math.abs
 
 fun square(): (r: Int, x: Int, y: Int) -> Boolean {

@@ -1,6 +1,6 @@
-package image
+package com.rtarita.kip.image
 
-import util.OverflowHandling
+import com.rtarita.kip.util.OverflowHandling
 import java.awt.image.BufferedImage
 import java.nio.file.Path
 import javax.imageio.ImageIO

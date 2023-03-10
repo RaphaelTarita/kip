@@ -1,9 +1,9 @@
-package actions
+package com.rtarita.kip.actions
 
-import image.PixelAccess
-import image.PixelColour
-import util.max
-import util.min
+import com.rtarita.kip.image.PixelAccess
+import com.rtarita.kip.image.PixelColour
+import com.rtarita.kip.util.max
+import com.rtarita.kip.util.min
 
 inline fun invert(crossinline orig: PixelAccess.(PixelColour) -> Boolean): PixelAccess.(PixelColour) -> Boolean {
     return {

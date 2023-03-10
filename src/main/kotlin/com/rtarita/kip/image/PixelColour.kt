@@ -1,8 +1,8 @@
-package image
+package com.rtarita.kip.image
 
-import util.channelToUInt
-import util.div
-import util.times
+import com.rtarita.kip.util.channelToUInt
+import com.rtarita.kip.util.div
+import com.rtarita.kip.util.times
 
 class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
     companion object {

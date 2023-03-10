@@ -1,4 +1,4 @@
-package actions
+package com.rtarita.kip.actions
 
 import kotlin.math.E
 import kotlin.math.ln

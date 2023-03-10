@@ -1,4 +1,4 @@
-package util
+package com.rtarita.kip.util
 
 import kotlin.math.max
 import kotlin.math.min

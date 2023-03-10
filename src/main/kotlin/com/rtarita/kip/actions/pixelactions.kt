@@ -1,11 +1,11 @@
-package actions
+package com.rtarita.kip.actions
 
-import image.PixelAccess
-import image.PixelColour
-import util.coerce
-import util.plus
-import util.roundToUInt
-import util.times
+import com.rtarita.kip.image.PixelAccess
+import com.rtarita.kip.image.PixelColour
+import com.rtarita.kip.util.coerce
+import com.rtarita.kip.util.plus
+import com.rtarita.kip.util.roundToUInt
+import com.rtarita.kip.util.times
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
