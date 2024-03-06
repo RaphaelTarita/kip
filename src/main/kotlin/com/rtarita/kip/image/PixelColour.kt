@@ -6,6 +6,7 @@ import com.rtarita.kip.util.times
 
 class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
     companion object {
+        private val identity: (UInt) -> UInt = { it }
         private fun hexCol(hex: String, col: Int): UInt {
             val pos = if (hex.startsWith('#')) 1 else 0 + col * 2
             return hex.substring(pos, pos + 2).toUInt(16)
@@ -31,11 +32,25 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         val WHITE = PixelColour(255u, 255u, 255u, 255u)
     }
 
+    constructor(
+        original: PixelColour,
+        onR: (UInt) -> UInt = identity,
+        onG: (UInt) -> UInt = identity,
+        onB: (UInt) -> UInt = identity,
+        onAlpha: (UInt) -> UInt = identity
+    ) : this(
+        onR(original.r),
+        onG(original.g),
+        onB(original.b),
+        onAlpha(original.a)
+    )
+
     constructor(original: PixelColour, onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt) : this(
-        onChannel(original.r),
-        onChannel(original.g),
-        onChannel(original.b),
-        onAlphaChannel(original.a)
+        original,
+        onChannel,
+        onChannel,
+        onChannel,
+        onAlphaChannel
     )
 
     constructor(original: PixelColour, onChannel: (UInt) -> UInt) : this(original, onChannel, onChannel)
@@ -53,6 +68,22 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
 
     fun transform(onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt): PixelColour {
         return PixelColour(this, onChannel, onAlphaChannel)
+    }
+
+    fun rTransform(onRedChannel: (UInt) -> UInt): PixelColour {
+        return PixelColour(this, onR = onRedChannel)
+    }
+
+    fun gTransform(onGreenChannel: (UInt) -> UInt): PixelColour {
+        return PixelColour(this, onG = onGreenChannel)
+    }
+
+    fun bTransform(onBlueChannel: (UInt) -> UInt): PixelColour {
+        return PixelColour(this, onB = onBlueChannel)
+    }
+
+    fun alphaTransform(onAlphaChannel: (UInt) -> UInt): PixelColour {
+        return PixelColour(this, onAlpha = onAlphaChannel)
     }
 
     fun byteR() = r.toByte()

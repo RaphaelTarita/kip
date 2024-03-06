@@ -36,22 +36,42 @@ class Step(
     fun next(): Step = blank(width, height, hasAlpha)
     fun copy(): Step = Step(width, height, hasAlpha, data.copyOf())
 
-    internal fun internalRead(location: Int): PixelColour {
+    private fun internalReadWithAlpha(location: Int): PixelColour {
         return PixelColour.fromBytes(
-            data[location],
-            data[location + 1],
+            data[location + 3],
             data[location + 2],
-            if (hasAlpha) data[location + 3] else -128
+            data[location + 1],
+            data[location]
         )
     }
 
-    internal fun internalWrite(location: Int, c: PixelColour) {
-        data[location] = c.byteR()
+    private fun internalReadWithoutAlpha(location: Int): PixelColour {
+        return PixelColour.fromBytes(
+            data[location + 2],
+            data[location + 1],
+            data[location]
+        )
+    }
+
+    internal fun internalRead(location: Int): PixelColour {
+        return if (hasAlpha) internalReadWithAlpha(location) else internalReadWithoutAlpha(location)
+    }
+
+    private fun internalWriteWithAlpha(location: Int, c: PixelColour) {
+        data[location] = c.byteA()
+        data[location + 1] = c.byteB()
+        data[location + 2] = c.byteG()
+        data[location + 3] = c.byteR()
+    }
+
+    private fun internalWriteWithoutAlpha(location: Int, c: PixelColour) {
+        data[location] = c.byteB()
         data[location + 1] = c.byteG()
-        data[location + 2] = c.byteB()
-        if (hasAlpha) {
-            data[location + 3] = c.byteA()
-        }
+        data[location + 2] = c.byteR()
+    }
+
+    internal fun internalWrite(location: Int, c: PixelColour) {
+        if (hasAlpha) internalWriteWithAlpha(location, c) else internalWriteWithoutAlpha(location, c)
     }
 
     internal fun internalTransform(location: Int, action: (PixelColour) -> PixelColour) {

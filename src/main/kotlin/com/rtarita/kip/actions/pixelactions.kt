@@ -11,7 +11,7 @@ import kotlin.math.sqrt
 
 fun toColourMapper(curve: (Double) -> Double): (UInt) -> UInt {
     return {
-        curve(it.toDouble()).roundToUInt().coerce(0u, 255u)
+        curve(it.toDouble()).coerce(0.0, 255.0).roundToUInt()
     }
 }
 
@@ -32,23 +32,58 @@ fun brighten(rate: Double): (PixelColour) -> PixelColour {
     }
 }
 
-fun saturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
+private fun saturateColour(
+    rate: Double,
+    split: Double,
+    transformChannel: PixelColour.((UInt) -> UInt) -> PixelColour
+): (PixelColour) -> PixelColour {
     val absSplit = split * 255
     val mapper = toColourMapper { (it + ((if (it <= absSplit) 0.0 else 255.0) - it.toInt()) * rate) }
     return { colour ->
-        colour.transform {
-            mapper(it)
+        colour.transformChannel(mapper)
+    }
+}
+
+fun desaturateColour(rate: Double, transformChannel: PixelColour.((UInt) -> UInt) -> PixelColour): (PixelColour) -> PixelColour {
+    return { colour ->
+        val gray = colour.grayval()
+        colour.transformChannel {
+            (it + (gray.toInt() - it.toInt()) * rate).toUInt()
         }
     }
 }
 
+fun saturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
+    return saturateColour(rate, split, PixelColour::transform)
+}
+
+fun rSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
+    return saturateColour(rate, split, PixelColour::rTransform)
+}
+
+fun gSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
+    return saturateColour(rate, split, PixelColour::gTransform)
+}
+
+fun bSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
+    return saturateColour(rate, split, PixelColour::bTransform)
+}
+
+
 fun desaturate(rate: Double): (PixelColour) -> PixelColour {
-    return { colour ->
-        val gray = colour.grayval()
-        colour.transform {
-            (it + (gray.toInt() - it.toInt()) * rate).toUInt()
-        }
-    }
+    return desaturateColour(rate, PixelColour::transform)
+}
+
+fun rDesaturate(rate: Double): (PixelColour) -> PixelColour {
+    return desaturateColour(rate, PixelColour::rTransform)
+}
+
+fun gDesaturate(rate: Double): (PixelColour) -> PixelColour {
+    return desaturateColour(rate, PixelColour::gTransform)
+}
+
+fun bDesaturate(rate: Double): (PixelColour) -> PixelColour {
+    return desaturateColour(rate, PixelColour::bTransform)
 }
 
 fun curves(curve: (Double) -> Double): (PixelColour) -> PixelColour {
@@ -60,37 +95,22 @@ fun curves(curve: (Double) -> Double): (PixelColour) -> PixelColour {
 
 fun rCurve(rcurve: (Double) -> Double): (PixelColour) -> PixelColour {
     val mapper = toColourMapper(rcurve)
-    return {
-        PixelColour(
-            mapper(it.r),
-            it.g,
-            it.b,
-            it.a
-        )
+    return { colour ->
+        colour.rTransform(mapper)
     }
 }
 
 fun gCurve(gcurve: (Double) -> Double): (PixelColour) -> PixelColour {
     val mapper = toColourMapper(gcurve)
-    return {
-        PixelColour(
-            it.r,
-            mapper(it.g),
-            it.b,
-            it.a
-        )
+    return { colour ->
+        colour.gTransform(mapper)
     }
 }
 
 fun bCurve(bcurve: (Double) -> Double): (PixelColour) -> PixelColour {
     val mapper = toColourMapper(bcurve)
-    return {
-        PixelColour(
-            it.r,
-            it.g,
-            mapper(it.b),
-            it.a
-        )
+    return { colour ->
+        colour.bTransform(mapper)
     }
 }
 
