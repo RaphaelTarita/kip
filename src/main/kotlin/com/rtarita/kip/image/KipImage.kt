@@ -8,12 +8,17 @@ import kotlin.io.path.div
 import kotlin.io.path.extension
 
 class KipImage private constructor(val keepSteps: Boolean = false, private val stack: MutableList<Step> = mutableListOf()) {
-    private fun push(step: Step) {
-        if (keepSteps) {
-            stack.add(step)
-        } else {
-            stack[0] = step
-        }
+    companion object {
+        fun blank(x: Int, y: Int, hasAlpha: Boolean = false, keepSteps: Boolean = false) = KipImage(
+            keepSteps,
+            mutableListOf(
+                Step.blank(
+                    x,
+                    y,
+                    hasAlpha
+                )
+            )
+        )
     }
 
     constructor(
@@ -30,13 +35,21 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         stack += Step(initImage)
     }
 
-    fun step(action: (MutablePixelAccess) -> Unit) {
+    private fun push(step: Step) {
+        if (keepSteps) {
+            stack.add(step)
+        } else {
+            stack[0] = step
+        }
+    }
+
+    fun performMutateAction(action: (MutablePixelAccess) -> Unit) {
         val newStep = top().copy()
         action(newStep)
         push(newStep)
     }
 
-    fun onEachPixel(action: (PixelColor) -> PixelColor) {
+    fun performColorAction(action: (PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         repeat(currentStep.width * currentStep.height) {
@@ -45,7 +58,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: (x: Int, y: Int, PixelColor) -> PixelColor) {
+    fun performCoordinateAction(action: (x: Int, y: Int, PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         for (x in 0 until currentStep.width) {
@@ -56,7 +69,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: PixelAccess.(PixelColor) -> PixelColor) {
+    fun performPixelAccessAction(action: PixelAccess.(PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         repeat(currentStep.width * currentStep.height) {
@@ -65,7 +78,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: PixelAccess.(x: Int, y: Int, PixelColor) -> PixelColor) {
+    fun performCoordinatePixelAccessAction(action: PixelAccess.(x: Int, y: Int, PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         for (x in 0 until currentStep.width) {
@@ -96,15 +109,17 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         }
     }
 
-    operator fun plusAssign(other: KipImage) {
-        plus(other)
+    fun add(other: KipImage, overflowHandling: OverflowHandling = OverflowHandling.CLAMP): KipImage {
+        val newImage = KipImage(keepSteps, stack)
+        newImage.push(top().add(other.top(), overflowHandling))
+        return newImage
     }
 
-    fun plus(other: KipImage, overflowHandling: OverflowHandling = OverflowHandling.CLAMP) {
-        push(top().add(other.top(), overflowHandling))
-    }
+    operator fun plus(other: KipImage) = add(other)
 
-    operator fun minusAssign(other: KipImage) {
-        push(top().subtract(other.top()))
+    operator fun minus(other: KipImage): KipImage {
+        val newImage = KipImage(keepSteps, stack)
+        newImage.push(top().subtract(other.top()))
+        return newImage
     }
 }
