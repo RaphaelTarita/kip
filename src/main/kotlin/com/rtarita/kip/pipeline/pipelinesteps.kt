@@ -23,7 +23,7 @@ internal data class BranchingStep(val left: PipelineStep, val right: PipelineSte
     private fun findCombinator(step: PipelineStep): CombineStep? {
         return when (step) {
             is BranchEnd -> step.combineStep
-            is BranchingStep -> findCombinator(findCombinator(step)?.next ?: return null)
+            is BranchingStep -> findCombinator(findCombinator(step.left)?.next ?: return null)
             PipelineEnd -> null
             is ProcessingStep -> findCombinator(step.next)
         }
