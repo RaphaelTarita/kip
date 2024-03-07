@@ -36,7 +36,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: (PixelColour) -> PixelColour) {
+    fun onEachPixel(action: (PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         repeat(currentStep.width * currentStep.height) {
@@ -45,7 +45,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: (x: Int, y: Int, PixelColour) -> PixelColour) {
+    fun onEachPixel(action: (x: Int, y: Int, PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         for (x in 0 until currentStep.width) {
@@ -56,7 +56,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: PixelAccess.(PixelColour) -> PixelColour) {
+    fun onEachPixel(action: PixelAccess.(PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         repeat(currentStep.width * currentStep.height) {
@@ -65,7 +65,7 @@ class KipImage private constructor(val keepSteps: Boolean = false, private val s
         push(newStep)
     }
 
-    fun onEachPixel(action: PixelAccess.(x: Int, y: Int, PixelColour) -> PixelColour) {
+    fun onEachPixel(action: PixelAccess.(x: Int, y: Int, PixelColor) -> PixelColor) {
         val currentStep = top()
         val newStep = currentStep.next()
         for (x in 0 until currentStep.width) {

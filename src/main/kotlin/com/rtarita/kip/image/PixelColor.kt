@@ -4,7 +4,7 @@ import com.rtarita.kip.util.channelToUInt
 import com.rtarita.kip.util.div
 import com.rtarita.kip.util.times
 
-class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
+class PixelColor(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
     companion object {
         private val identity: (UInt) -> UInt = { it }
         private fun hexCol(hex: String, col: Int): UInt {
@@ -19,8 +19,8 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         private fun hexB(hex: String) = hexCol(hex, 2)
         private fun hexA(hex: String) = hexCol(hex, 3)
 
-        fun fromBytes(r: Byte, g: Byte, b: Byte, a: Byte = -128): PixelColour {
-            return PixelColour(
+        fun fromBytes(r: Byte, g: Byte, b: Byte, a: Byte = -128): PixelColor {
+            return PixelColor(
                 r.channelToUInt(),
                 g.channelToUInt(),
                 b.channelToUInt(),
@@ -28,12 +28,12 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
             )
         }
 
-        val BLACK = PixelColour(0u, 0u, 0u, 255u)
-        val WHITE = PixelColour(255u, 255u, 255u, 255u)
+        val BLACK = PixelColor(0u, 0u, 0u, 255u)
+        val WHITE = PixelColor(255u, 255u, 255u, 255u)
     }
 
     constructor(
-        original: PixelColour,
+        original: PixelColor,
         onR: (UInt) -> UInt = identity,
         onG: (UInt) -> UInt = identity,
         onB: (UInt) -> UInt = identity,
@@ -45,7 +45,7 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         onAlpha(original.a)
     )
 
-    constructor(original: PixelColour, onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt) : this(
+    constructor(original: PixelColor, onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt) : this(
         original,
         onChannel,
         onChannel,
@@ -53,7 +53,7 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         onAlphaChannel
     )
 
-    constructor(original: PixelColour, onChannel: (UInt) -> UInt) : this(original, onChannel, onChannel)
+    constructor(original: PixelColor, onChannel: (UInt) -> UInt) : this(original, onChannel, onChannel)
 
     constructor(hex: String) : this(
         hexR(hex),
@@ -62,28 +62,28 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         if (hexHasAlpha(hex)) hexA(hex) else 0u
     )
 
-    fun transform(onChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onChannel)
+    fun transform(onChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onChannel)
     }
 
-    fun transform(onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onChannel, onAlphaChannel)
+    fun transform(onChannel: (UInt) -> UInt, onAlphaChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onChannel, onAlphaChannel)
     }
 
-    fun rTransform(onRedChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onR = onRedChannel)
+    fun rTransform(onRedChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onR = onRedChannel)
     }
 
-    fun gTransform(onGreenChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onG = onGreenChannel)
+    fun gTransform(onGreenChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onG = onGreenChannel)
     }
 
-    fun bTransform(onBlueChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onB = onBlueChannel)
+    fun bTransform(onBlueChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onB = onBlueChannel)
     }
 
-    fun alphaTransform(onAlphaChannel: (UInt) -> UInt): PixelColour {
-        return PixelColour(this, onAlpha = onAlphaChannel)
+    fun alphaTransform(onAlphaChannel: (UInt) -> UInt): PixelColor {
+        return PixelColor(this, onAlpha = onAlphaChannel)
     }
 
     fun byteR() = r.toByte()
@@ -93,18 +93,18 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
 
     fun grayval() = (r + g + b) / 3u
 
-    fun grayscale(): PixelColour {
+    fun grayscale(): PixelColor {
         val gray = grayval()
-        return PixelColour(gray, gray, gray, a)
+        return PixelColor(gray, gray, gray, a)
     }
 
-    operator fun plus(other: PixelColour): PixelColour {
-        return PixelColour(r + other.r, g + other.g, b + other.b, (a + other.a) / 2u)
+    operator fun plus(other: PixelColor): PixelColor {
+        return PixelColor(r + other.r, g + other.g, b + other.b, (a + other.a) / 2u)
     }
 
-    operator fun times(other: Number): PixelColour {
+    operator fun times(other: Number): PixelColor {
         val conv = other.toDouble()
-        return PixelColour(
+        return PixelColor(
             (r * conv).toUInt(),
             (g * conv).toUInt(),
             (b * conv).toUInt(),
@@ -112,9 +112,9 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
         )
     }
 
-    operator fun div(other: Number): PixelColour {
+    operator fun div(other: Number): PixelColor {
         val conv = other.toDouble()
-        return PixelColour(
+        return PixelColor(
             (r / conv).toUInt(),
             (g / conv).toUInt(),
             (b / conv).toUInt(),
@@ -129,7 +129,7 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
-        if (other !is PixelColour) return false
+        if (other !is PixelColor) return false
         return other.r == r &&
                 other.g == g &&
                 other.b == b &&
@@ -141,5 +141,5 @@ class PixelColour(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: U
     }
 }
 
-fun String.toColour() = PixelColour(this)
+fun String.toColor() = PixelColor(this)
 

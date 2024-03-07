@@ -1,7 +1,7 @@
 package com.rtarita.kip.actions
 
 import com.rtarita.kip.image.PixelAccess
-import com.rtarita.kip.image.PixelColour
+import com.rtarita.kip.image.PixelColor
 import com.rtarita.kip.util.coerce
 import com.rtarita.kip.util.plus
 import com.rtarita.kip.util.roundToUInt
@@ -9,115 +9,115 @@ import com.rtarita.kip.util.times
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-fun toColourMapper(curve: (Double) -> Double): (UInt) -> UInt {
+fun toColorMapper(curve: (Double) -> Double): (UInt) -> UInt {
     return {
         curve(it.toDouble()).coerce(0.0, 255.0).roundToUInt()
     }
 }
 
-fun colourIdentity(): (PixelColour) -> PixelColour = { it }
+fun colorIdentity(): (PixelColor) -> PixelColor = { it }
 
-fun invert(): (PixelColour) -> PixelColour = { colour ->
-    colour.transform {
+fun invert(): (PixelColor) -> PixelColor = { color ->
+    color.transform {
         255u - it
     }
 }
 
-fun brighten(rate: Double): (PixelColour) -> PixelColour {
-    val mapper = toColourMapper { (it + ((255 - it) * rate)) }
-    return { colour ->
-        colour.transform {
+fun brighten(rate: Double): (PixelColor) -> PixelColor {
+    val mapper = toColorMapper { (it + ((255 - it) * rate)) }
+    return { color ->
+        color.transform {
             mapper(it)
         }
     }
 }
 
-private fun saturateColour(
+private fun saturateColor(
     rate: Double,
     split: Double,
-    transformChannel: PixelColour.((UInt) -> UInt) -> PixelColour
-): (PixelColour) -> PixelColour {
+    transformChannel: PixelColor.((UInt) -> UInt) -> PixelColor
+): (PixelColor) -> PixelColor {
     val absSplit = split * 255
-    val mapper = toColourMapper { (it + ((if (it <= absSplit) 0.0 else 255.0) - it.toInt()) * rate) }
-    return { colour ->
-        colour.transformChannel(mapper)
+    val mapper = toColorMapper { (it + ((if (it <= absSplit) 0.0 else 255.0) - it.toInt()) * rate) }
+    return { color ->
+        color.transformChannel(mapper)
     }
 }
 
-fun desaturateColour(rate: Double, transformChannel: PixelColour.((UInt) -> UInt) -> PixelColour): (PixelColour) -> PixelColour {
-    return { colour ->
-        val gray = colour.grayval()
-        colour.transformChannel {
+fun desaturateColor(rate: Double, transformChannel: PixelColor.((UInt) -> UInt) -> PixelColor): (PixelColor) -> PixelColor {
+    return { color ->
+        val gray = color.grayval()
+        color.transformChannel {
             (it + (gray.toInt() - it.toInt()) * rate).toUInt()
         }
     }
 }
 
-fun saturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
-    return saturateColour(rate, split, PixelColour::transform)
+fun saturate(rate: Double, split: Double = 0.5): (PixelColor) -> PixelColor {
+    return saturateColor(rate, split, PixelColor::transform)
 }
 
-fun rSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
-    return saturateColour(rate, split, PixelColour::rTransform)
+fun rSaturate(rate: Double, split: Double = 0.5): (PixelColor) -> PixelColor {
+    return saturateColor(rate, split, PixelColor::rTransform)
 }
 
-fun gSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
-    return saturateColour(rate, split, PixelColour::gTransform)
+fun gSaturate(rate: Double, split: Double = 0.5): (PixelColor) -> PixelColor {
+    return saturateColor(rate, split, PixelColor::gTransform)
 }
 
-fun bSaturate(rate: Double, split: Double = 0.5): (PixelColour) -> PixelColour {
-    return saturateColour(rate, split, PixelColour::bTransform)
+fun bSaturate(rate: Double, split: Double = 0.5): (PixelColor) -> PixelColor {
+    return saturateColor(rate, split, PixelColor::bTransform)
 }
 
 
-fun desaturate(rate: Double): (PixelColour) -> PixelColour {
-    return desaturateColour(rate, PixelColour::transform)
+fun desaturate(rate: Double): (PixelColor) -> PixelColor {
+    return desaturateColor(rate, PixelColor::transform)
 }
 
-fun rDesaturate(rate: Double): (PixelColour) -> PixelColour {
-    return desaturateColour(rate, PixelColour::rTransform)
+fun rDesaturate(rate: Double): (PixelColor) -> PixelColor {
+    return desaturateColor(rate, PixelColor::rTransform)
 }
 
-fun gDesaturate(rate: Double): (PixelColour) -> PixelColour {
-    return desaturateColour(rate, PixelColour::gTransform)
+fun gDesaturate(rate: Double): (PixelColor) -> PixelColor {
+    return desaturateColor(rate, PixelColor::gTransform)
 }
 
-fun bDesaturate(rate: Double): (PixelColour) -> PixelColour {
-    return desaturateColour(rate, PixelColour::bTransform)
+fun bDesaturate(rate: Double): (PixelColor) -> PixelColor {
+    return desaturateColor(rate, PixelColor::bTransform)
 }
 
-fun curves(curve: (Double) -> Double): (PixelColour) -> PixelColour {
-    val mapper = toColourMapper(curve)
-    return { colour ->
-        colour.transform(mapper)
+fun curves(curve: (Double) -> Double): (PixelColor) -> PixelColor {
+    val mapper = toColorMapper(curve)
+    return { color ->
+        color.transform(mapper)
     }
 }
 
-fun rCurve(rcurve: (Double) -> Double): (PixelColour) -> PixelColour {
-    val mapper = toColourMapper(rcurve)
-    return { colour ->
-        colour.rTransform(mapper)
+fun rCurve(rcurve: (Double) -> Double): (PixelColor) -> PixelColor {
+    val mapper = toColorMapper(rcurve)
+    return { color ->
+        color.rTransform(mapper)
     }
 }
 
-fun gCurve(gcurve: (Double) -> Double): (PixelColour) -> PixelColour {
-    val mapper = toColourMapper(gcurve)
-    return { colour ->
-        colour.gTransform(mapper)
+fun gCurve(gcurve: (Double) -> Double): (PixelColor) -> PixelColor {
+    val mapper = toColorMapper(gcurve)
+    return { color ->
+        color.gTransform(mapper)
     }
 }
 
-fun bCurve(bcurve: (Double) -> Double): (PixelColour) -> PixelColour {
-    val mapper = toColourMapper(bcurve)
-    return { colour ->
-        colour.bTransform(mapper)
+fun bCurve(bcurve: (Double) -> Double): (PixelColor) -> PixelColor {
+    val mapper = toColorMapper(bcurve)
+    return { color ->
+        color.bTransform(mapper)
     }
 }
 
-fun grayscale(rweight: Double = 1.0, gweight: Double = 1.0, bweight: Double = 1.0): (PixelColour) -> PixelColour {
+fun grayscale(rweight: Double = 1.0, gweight: Double = 1.0, bweight: Double = 1.0): (PixelColor) -> PixelColor {
     return {
         val gray = ((it.r * rweight + it.g * gweight + it.b * bweight) / 3.0).coerce(0.0, 255.0).toUInt()
-        PixelColour(
+        PixelColor(
             gray,
             gray,
             gray,
@@ -130,7 +130,7 @@ fun smooth(
     radius: Int = 1,
     mask: (r: Int, x: Int, y: Int) -> Boolean = circle(),
     intensity: (r: Int, max: Int) -> Double = uniform(),
-): PixelAccess.(x: Int, y: Int, PixelColour) -> PixelColour {
+): PixelAccess.(x: Int, y: Int, PixelColor) -> PixelColor {
     val pixels = selectWithRadiusInformation(radius, selectorOf(mask))
     val globalWeight = 1.0 / pixels.size
     return { x, y, _ ->
@@ -139,15 +139,15 @@ fun smooth(
         var b = 0.0
         var a = 0.0
         for (coord in pixels) {
-            val colour = readCoerce(x + coord.first, y + coord.second)
+            val color = readCoerce(x + coord.first, y + coord.second)
             val weight = intensity(coord.third, radius)
-            r += colour.r * weight * globalWeight
-            g += colour.g * weight * globalWeight
-            b += colour.b * weight * globalWeight
-            a += colour.a * weight * globalWeight
+            r += color.r * weight * globalWeight
+            g += color.g * weight * globalWeight
+            b += color.b * weight * globalWeight
+            a += color.a * weight * globalWeight
         }
 
-        PixelColour(
+        PixelColor(
             r.roundToUInt().coercePixel(),
             g.roundToUInt().coercePixel(),
             b.roundToUInt().coercePixel(),
@@ -159,8 +159,8 @@ fun smooth(
 fun pixelContextFilter(
     radius: Int = 1,
     mask: (r: Int, x: Int, y: Int) -> Boolean = circle(),
-    transform: (List<Triple<Int, Int, PixelColour>>, PixelColour) -> PixelColour
-): PixelAccess.(PixelColour) -> PixelColour {
+    transform: (List<Triple<Int, Int, PixelColor>>, PixelColor) -> PixelColor
+): PixelAccess.(PixelColor) -> PixelColor {
     val pixels = selectorOf(mask)(radius) - (0 to 0)
     return {
         val list = pixels.map { (x, y) -> Triple(x, y, readCoerce(x, y)) }
@@ -170,14 +170,14 @@ fun pixelContextFilter(
 
 fun <T, R> memoized(action: (T) -> (R)): (T) -> (R) {
     val cache = hashMapOf<T, R>()
-    return { colour ->
-        cache.computeIfAbsent(colour, action)
+    return { color ->
+        cache.computeIfAbsent(color, action)
     }
 }
 
-fun retainOnly(selector: PixelAccess.(PixelColour) -> Boolean): PixelAccess.(PixelColour) -> PixelColour {
+fun retainOnly(selector: PixelAccess.(PixelColor) -> Boolean): PixelAccess.(PixelColor) -> PixelColor {
     return {
-        if (selector(it)) it else PixelColour.BLACK
+        if (selector(it)) it else PixelColor.BLACK
     }
 }
 

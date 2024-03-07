@@ -36,8 +36,8 @@ class Step(
     fun next(): Step = blank(width, height, hasAlpha)
     fun copy(): Step = Step(width, height, hasAlpha, data.copyOf())
 
-    private fun internalReadWithAlpha(location: Int): PixelColour {
-        return PixelColour.fromBytes(
+    private fun internalReadWithAlpha(location: Int): PixelColor {
+        return PixelColor.fromBytes(
             data[location + 3],
             data[location + 2],
             data[location + 1],
@@ -45,57 +45,57 @@ class Step(
         )
     }
 
-    private fun internalReadWithoutAlpha(location: Int): PixelColour {
-        return PixelColour.fromBytes(
+    private fun internalReadWithoutAlpha(location: Int): PixelColor {
+        return PixelColor.fromBytes(
             data[location + 2],
             data[location + 1],
             data[location]
         )
     }
 
-    internal fun internalRead(location: Int): PixelColour {
+    internal fun internalRead(location: Int): PixelColor {
         return if (hasAlpha) internalReadWithAlpha(location) else internalReadWithoutAlpha(location)
     }
 
-    private fun internalWriteWithAlpha(location: Int, c: PixelColour) {
+    private fun internalWriteWithAlpha(location: Int, c: PixelColor) {
         data[location] = c.byteA()
         data[location + 1] = c.byteB()
         data[location + 2] = c.byteG()
         data[location + 3] = c.byteR()
     }
 
-    private fun internalWriteWithoutAlpha(location: Int, c: PixelColour) {
+    private fun internalWriteWithoutAlpha(location: Int, c: PixelColor) {
         data[location] = c.byteB()
         data[location + 1] = c.byteG()
         data[location + 2] = c.byteR()
     }
 
-    internal fun internalWrite(location: Int, c: PixelColour) {
+    internal fun internalWrite(location: Int, c: PixelColor) {
         if (hasAlpha) internalWriteWithAlpha(location, c) else internalWriteWithoutAlpha(location, c)
     }
 
-    internal fun internalTransform(location: Int, action: (PixelColour) -> PixelColour) {
+    internal fun internalTransform(location: Int, action: (PixelColor) -> PixelColor) {
         internalWrite(location, action(internalRead(location)))
     }
 
-    override fun read(x: Int, y: Int): PixelColour = internalRead(toLocation(x, y))
-    override fun write(x: Int, y: Int, c: PixelColour) = internalWrite(toLocation(x, y), c)
-    override fun transform(x: Int, y: Int, action: (PixelColour) -> PixelColour) = internalTransform(toLocation(x, y), action)
+    override fun read(x: Int, y: Int): PixelColor = internalRead(toLocation(x, y))
+    override fun write(x: Int, y: Int, c: PixelColor) = internalWrite(toLocation(x, y), c)
+    override fun transform(x: Int, y: Int, action: (PixelColor) -> PixelColor) = internalTransform(toLocation(x, y), action)
 
     override fun coerceX(x: Int): Int = x.coerce(0, width - 1)
     override fun coerceY(y: Int): Int = y.coerce(0, height - 1)
 
-    override fun readCoerce(x: Int, y: Int): PixelColour = internalRead(toLocationCoerced(x, y))
-    override fun writeCoerce(x: Int, y: Int, c: PixelColour) = internalWrite(toLocationCoerced(x, y), c)
-    override fun transformCoerce(x: Int, y: Int, action: (PixelColour) -> PixelColour) = internalTransform(toLocationCoerced(x, y), action)
+    override fun readCoerce(x: Int, y: Int): PixelColor = internalRead(toLocationCoerced(x, y))
+    override fun writeCoerce(x: Int, y: Int, c: PixelColor) = internalWrite(toLocationCoerced(x, y), c)
+    override fun transformCoerce(x: Int, y: Int, action: (PixelColor) -> PixelColor) = internalTransform(toLocationCoerced(x, y), action)
 
-    fun onEachPixel(action: PixelAccess.(PixelColour) -> PixelColour) {
+    fun onEachPixel(action: PixelAccess.(PixelColor) -> PixelColor) {
         repeat(width * height) { location ->
             internalTransform(location * unit) { this.action(it) }
         }
     }
 
-    fun onEachPixel(action: PixelAccess.(Int, Int, PixelColour) -> PixelColour) {
+    fun onEachPixel(action: PixelAccess.(Int, Int, PixelColor) -> PixelColor) {
         for (y in 0 until height) {
             for (x in 0 until width) {
                 transform(x, y) { this.action(x, y, it) }
@@ -113,16 +113,9 @@ class Step(
         return result
     }
 
-    private fun maxAdded(other: Step): Double {
-        var max = 0
-        for (i in data.indices) {
-            val added = data[i].toUByte().toInt() + other.data[i].toUByte().toInt()
-            if (added > max) {
-                max = added
-            }
-        }
-        return max.toDouble()
-    }
+    private fun maxAdded(other: Step): Double = data.indices
+        .maxOf { data[it].toUByte().toInt() + other.data[it].toUByte().toInt() }
+        .toDouble()
 
     fun add(other: Step, overflowHandling: OverflowHandling = OverflowHandling.CLAMP): Step {
         require(data.size == other.data.size)
