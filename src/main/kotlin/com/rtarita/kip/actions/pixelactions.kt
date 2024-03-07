@@ -44,7 +44,7 @@ private fun saturateColor(
     }
 }
 
-fun desaturateColor(rate: Double, transformChannel: PixelColor.((UInt) -> UInt) -> PixelColor): (PixelColor) -> PixelColor {
+private fun desaturateColor(rate: Double, transformChannel: PixelColor.((UInt) -> UInt) -> PixelColor): (PixelColor) -> PixelColor {
     return { color ->
         val gray = color.grayval()
         color.transformChannel {
