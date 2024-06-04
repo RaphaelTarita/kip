@@ -5,18 +5,39 @@
 The main focus lies on programmatic definition of filters (like brighten, darken, saturate, color curve modifications etc.), which are composed in a
 functional fashion, heavily utilizing lambdas and higher-order functions.
 
+kip also provides a DSL for writing reusable image processing pipelines using the aforementioned filters.
+
 For demonstration, here's some sample code that applies a custom bloom effect to an image:
 
 ```kotlin
 fun main() {
-    val source = ImageIO.read(File("path/to/myimage.png"))
-    val img = KipImage(source, keepSteps = true)
+    val pipeline = buildPipeline {
+        branch {
+            left {
+                branch {
+                    left {
+                        step(smooth(100, cross(), uniform(3.0)))
+                    }
+                    right {
+                        step(smooth(60, star(), uniform(3.0)))
+                    }
+                    combine { left, right -> left.add(right, OverflowHandling.CLAMP) }
+                }
+            }
+            combine { left, right -> left.add(right, OverflowHandling.CLAMP) }
+        }
+    }
 
-    val orig = img.branch(transferSteps = false) // create a copy of the original
-    img.onEachPixel(retainOnly(maxOver(180))) // only keep pixels which maximum color value is over 180
-    img.onEachPixel(smooth(50, circle(), linear(5.0))) // apply a circle blur with a radius of 50 and a linear falloff
-    img.plus(orig, OverflowHandling.NORMALIZE) // add together the processed image with the original, normalizing on overflow
-
-    img.saveAllSteps(Path("path/to/myoutput/"), "step", "PNG")
+    executePipeline(pipeline) {
+        load {
+            KipImage(ImageIO.read(File("test-images/input/test.png")), keepSteps = true)
+        }
+        save {
+            it.saveAllSteps(Path("test-images/output/"), "step", "PNG")
+        }
+        log {
+            println(it)
+        }
+    }
 }
 ```
