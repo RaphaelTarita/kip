@@ -1,6 +1,7 @@
 .gradle
 .idea
 build
+.kotlin
 
 /test-images
 main.kt
