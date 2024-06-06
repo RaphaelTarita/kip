@@ -12,28 +12,23 @@ For demonstration, here's some sample code that applies a custom bloom effect to
 ```kotlin
 fun main() {
     val pipeline = buildPipeline {
-        branch {
-            left {
-                branch {
-                    left {
-                        step(smooth(100, cross(), uniform(3.0)))
-                    }
-                    right {
-                        step(smooth(60, star(), uniform(3.0)))
-                    }
-                    combine { left, right -> left.add(right, OverflowHandling.CLAMP) }
-                }
+        branch { // branch the image
+            left { // apply steps to "left" branch
+                step(retainOnly(maxOver(180))) // only keep pixels which maximum color value is over 180
+                step(smooth(50, circle(), linear(5.0))) // apply a circle blur with a radius of 50 and a linear falloff
             }
-            combine { left, right -> left.add(right, OverflowHandling.CLAMP) }
+            combine { left, right ->
+                left.add(right, OverflowHandling.NORMALIZE) // add together the processed image with the original, normalizing on overflow
+            }
         }
     }
 
     executePipeline(pipeline) {
         load {
-            KipImage(ImageIO.read(File("test-images/input/test.png")), keepSteps = true)
+            KipImage(ImageIO.read(File("path/to/myimage.png")), keepSteps = true)
         }
         save {
-            it.saveAllSteps(Path("test-images/output/"), "step", "PNG")
+            it.saveAllSteps(Path("path/to/myoutput"), "step", "PNG")
         }
         log {
             println(it)
