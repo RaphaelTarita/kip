@@ -4,7 +4,7 @@ import com.rtarita.kip.util.channelToUInt
 import com.rtarita.kip.util.div
 import com.rtarita.kip.util.times
 
-class PixelColor(var r: UInt = 0u, var g: UInt = 0u, var b: UInt = 0u, var a: UInt = 0u) {
+class PixelColor(val r: UInt = 0u, val g: UInt = 0u, val b: UInt = 0u, val a: UInt = 0u) {
     companion object {
         private val identity: (UInt) -> UInt = { it }
         private fun hexCol(hex: String, col: Int): UInt {
